@@ -1,0 +1,25 @@
+{
+  "name": "ROS2 Humble Dev",
+  "dockerComposeFile": "../compose.yml",
+  "service": "ros2_dev",
+  "workspaceFolder": "/ros_ws",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-vscode.cpptools",
+        "twxs.cmake",
+        "nonanonno.vscode-ros2"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "cmake.configureOnOpen": false
+      }
+    }
+  },
+  "postCreateCommand": "rosdep install --from-paths src --ignore-src -r -y",
+  "remoteEnv": {
+    "ROS_DOMAIN_ID": "42",
+    "RMW_IMPLEMENTATION": "rmw_fastrtps_cpp"
+  }
+}

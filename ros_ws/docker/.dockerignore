@@ -1,0 +1,17 @@
+# ビルド成果物を除外
+build/
+install/
+log/
+
+# Git関連
+.git/
+.gitignore
+
+# エディタ・OS
+.vscode/
+__pycache__/
+*.pyc
+.DS_Store
+
+# CI設定
+.github/

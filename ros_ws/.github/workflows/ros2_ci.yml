@@ -1,0 +1,44 @@
+name: ROS2 CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    container:
+      image: ros:humble-ros-base
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ros_ws/src
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          rosdep update
+          rosdep install --from-paths ros_ws/src --ignore-src -r -y
+
+      - name: Build
+        run: |
+          cd ros_ws
+          source /opt/ros/humble/setup.bash
+          colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+      - name: Test
+        run: |
+          cd ros_ws
+          source /opt/ros/humble/setup.bash
+          colcon test --return-code-on-test-failure
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ros_ws/log/

@@ -1,0 +1,26 @@
+services:
+  ros2_dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: myteam/ros2-humble:latest
+    container_name: ros2_dev
+    environment:
+      - DISPLAY=${DISPLAY}                    # GUI転送用
+      - ROS_DOMAIN_ID=42                      # チームで統一する
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp   # DDS実装を統一
+    volumes:
+      - ./src:/ros_ws/src                     # ソースコードをマウント
+      - /tmp/.X11-unix:/tmp/.X11-unix         # X11 GUI転送
+      - ros2_build:/ros_ws/build              # ビルドキャッシュを永続化
+      - ros2_install:/ros_ws/install
+      - ros2_log:/ros_ws/log
+    network_mode: host                        # DDS通信のためhost推奨
+    privileged: false
+    stdin_open: true
+    tty: true
+
+volumes:
+  ros2_build:
+  ros2_install:
+  ros2_log:
