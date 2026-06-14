@@ -17,7 +17,7 @@
       }
     }
   },
-  "postCreateCommand": "rosdep install --from-paths src --ignore-src -r -y",
+  "postCreateCommand": "sudo chown -R ros:ros /ros_ws/build /ros_ws/install /ros_ws/log 2>/dev/null; rosdep install --from-paths src --ignore-src -r -y",
   "remoteEnv": {
     "ROS_DOMAIN_ID": "42",
     "RMW_IMPLEMENTATION": "rmw_fastrtps_cpp"
