@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import PointCloud2
+from sensor_msgs.msg import PointCloud2, PointField
 import struct
 
 
@@ -18,9 +18,9 @@ class DummyLidarPublisher(Node):
         msg.height = 1
         msg.width = 5
         msg.fields = [
-            PointCloud2.Field(name='x', offset=0, datatype=7, count=1),
-            PointCloud2.Field(name='y', offset=4, datatype=7, count=1),
-            PointCloud2.Field(name='z', offset=8, datatype=7, count=1),
+            PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
+            PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
+            PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
         ]
         msg.is_bigendian = False
         msg.point_step = 16
