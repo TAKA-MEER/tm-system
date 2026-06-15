@@ -1,0 +1,60 @@
+# =============================================================================
+# Factory ASR – ROS2 Parameter File
+# All values can be overridden at launch time:
+#   ros2 launch factory_asr factory_asr.launch.py
+# or at runtime:
+#   ros2 param set /asr_engine beam_size 3
+# =============================================================================
+
+# --------------------------------------------------------------------------- #
+# audio_capture_node
+# --------------------------------------------------------------------------- #
+audio_capture:
+  ros__parameters:
+    sample_rate: 16000          # Hz – do NOT change (Whisper requirement)
+    chunk_duration: 0.5         # seconds per publish chunk
+    device_index: -1            # -1 = system default microphone
+    input_mode: "mic"           # "mic" | "file"
+    input_file: ""              # path to .wav file (input_mode=file only)
+
+# --------------------------------------------------------------------------- #
+# preprocessor_node
+# --------------------------------------------------------------------------- #
+preprocessor:
+  ros__parameters:
+    vad_threshold: 0.5          # Silero-VAD speech probability threshold (0–1)
+    vad_min_silence_ms: 300     # ms of silence before flushing segment
+    vad_min_speech_ms: 100      # minimum ms of speech to consider a segment
+    max_segment_s: 30.0         # hard upper limit for segment duration
+    enable_denoiser: false       # true = enable DeepFilterNet3 (CPU, ~+30% CPU)
+    sample_rate: 16000
+
+# --------------------------------------------------------------------------- #
+# asr_engine_node
+# --------------------------------------------------------------------------- #
+asr_engine:
+  ros__parameters:
+    model_size: "large-v3-turbo"
+    language: "ja"
+    # ── Factory inspection terminology prompt ──────────────────────────────
+    # Extend this list with your plant-specific terms for higher accuracy:
+    initial_prompt: >
+      工場立ち会い試験。製品検査、品質管理、公差、トルク、圧力試験、
+      バルブ、フランジ、ガスケット、配管、溶接、非破壊検査、超音波探傷、
+      放射線透過試験、磁粉探傷、浸透探傷、引張試験、硬度試験、
+      耐圧試験、漏洩試験、水圧試験、気密試験、JISB、ASME、JPI規格。
+    beam_size: 5                # 1=fastest, 5=best accuracy
+    vad_filter: false           # already handled by preprocessor_node
+    num_workers: 2              # CTranslate2 inter-op parallel workers
+    cpu_threads: 4              # CTranslate2 intra-op BLAS threads
+
+# --------------------------------------------------------------------------- #
+# output_handler_node
+# --------------------------------------------------------------------------- #
+output_handler:
+  ros__parameters:
+    output_dir: "/ros_ws/output"
+    session_name: ""            # empty = auto-generated timestamp session
+    pretty_print: true
+    min_confidence: -1.5        # avg_log_prob threshold (lower = more permissive)
+    log_to_console: true

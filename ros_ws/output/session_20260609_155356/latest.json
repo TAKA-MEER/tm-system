@@ -1,0 +1,163 @@
+{
+  "utterance_id": 6,
+  "timestamp_ros": 1780989154935929590,
+  "language": "ja",
+  "language_prob": 1,
+  "duration_s": 4.064,
+  "inference_time_s": 9.762,
+  "real_time_factor": 2.402,
+  "model": "large-v3-turbo",
+  "device": "cpu",
+  "compute_type": "int8",
+  "full_text": "立ち会い法案と連動チェックシートがあるんですけど、先ほど言ってた。",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.44,
+      "text": "立ち会い法案と連動チェックシートがあるんですけど、先ほど言ってた。",
+      "avg_log_prob": -0.4567,
+      "no_speech_prob": 0.0,
+      "compression_ratio": 1.0421,
+      "words": [
+        {
+          "word": "立",
+          "start": 0.0,
+          "end": 0.24,
+          "probability": 0.4022
+        },
+        {
+          "word": "ち",
+          "start": 0.24,
+          "end": 0.3,
+          "probability": 0.9169
+        },
+        {
+          "word": "会",
+          "start": 0.3,
+          "end": 0.38,
+          "probability": 0.1268
+        },
+        {
+          "word": "い",
+          "start": 0.38,
+          "end": 0.42,
+          "probability": 0.3441
+        },
+        {
+          "word": "法",
+          "start": 0.42,
+          "end": 0.48,
+          "probability": 0.6081
+        },
+        {
+          "word": "案",
+          "start": 0.48,
+          "end": 0.62,
+          "probability": 0.9978
+        },
+        {
+          "word": "と",
+          "start": 0.62,
+          "end": 0.78,
+          "probability": 0.9238
+        },
+        {
+          "word": "連",
+          "start": 0.78,
+          "end": 0.94,
+          "probability": 0.3503
+        },
+        {
+          "word": "動",
+          "start": 0.94,
+          "end": 1.06,
+          "probability": 0.8923
+        },
+        {
+          "word": "チ",
+          "start": 1.06,
+          "end": 1.16,
+          "probability": 0.8604
+        },
+        {
+          "word": "ェ",
+          "start": 1.16,
+          "end": 1.2,
+          "probability": 0.9883
+        },
+        {
+          "word": "ック",
+          "start": 1.2,
+          "end": 1.28,
+          "probability": 0.9947
+        },
+        {
+          "word": "シ",
+          "start": 1.28,
+          "end": 1.36,
+          "probability": 0.8416
+        },
+        {
+          "word": "ート",
+          "start": 1.36,
+          "end": 1.5,
+          "probability": 0.754
+        },
+        {
+          "word": "が",
+          "start": 1.5,
+          "end": 1.68,
+          "probability": 0.6459
+        },
+        {
+          "word": "ある",
+          "start": 1.68,
+          "end": 2.2,
+          "probability": 0.3674
+        },
+        {
+          "word": "んです",
+          "start": 2.2,
+          "end": 2.34,
+          "probability": 0.777
+        },
+        {
+          "word": "けど、",
+          "start": 2.34,
+          "end": 2.54,
+          "probability": 0.8443
+        },
+        {
+          "word": "先",
+          "start": 2.66,
+          "end": 2.84,
+          "probability": 0.9139
+        },
+        {
+          "word": "ほど",
+          "start": 2.84,
+          "end": 3.06,
+          "probability": 0.8752
+        },
+        {
+          "word": "言",
+          "start": 3.06,
+          "end": 3.18,
+          "probability": 0.929
+        },
+        {
+          "word": "って",
+          "start": 3.18,
+          "end": 3.32,
+          "probability": 0.9786
+        },
+        {
+          "word": "た。",
+          "start": 3.32,
+          "end": 3.44,
+          "probability": 0.6928
+        }
+      ]
+    }
+  ]
+}

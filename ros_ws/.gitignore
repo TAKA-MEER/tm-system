@@ -17,3 +17,6 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# 環境差分（各メンバーが .env.*.example からコピーして作成）
+.env

@@ -6,15 +6,24 @@ services:
     image: myteam/ros2-humble:latest
     container_name: ros2_dev
     environment:
-      - DISPLAY=${DISPLAY}                    # GUI転送用
-      - ROS_DOMAIN_ID=42                      # チームで統一する
-      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp   # DDS実装を統一
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=42
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - PULSE_SERVER=${PULSE_SERVER}
     volumes:
       - ./src:/ros_ws/src                     # ソースコードをマウント
       - /tmp/.X11-unix:/tmp/.X11-unix         # X11 GUI転送
       - ros2_build:/ros_ws/build              # ビルドキャッシュを永続化
       - ros2_install:/ros_ws/install
       - ros2_log:/ros_ws/log
+      - ./output:/ros_ws/output               # 音声認識の出力先をマウント
+      - whisper_cache:/home/ros/.cache/huggingface # Whisperモデルキャッシュ
+      - ${PULSE_SOCKET_DIR:-/dev/null}:/run/user/1000/pulse
+      - ${PULSE_COOKIE_DIR:-/dev/null}:/root/.config/pulse/cookie
+    devices:
+      - ${AUDIO_DEVICE:-/dev/null}:/dev/null
+    group_add:
+      - audio                                 # audioグループ追加
     network_mode: host                        # DDS通信のためhost推奨
     privileged: false
     stdin_open: true
@@ -24,3 +33,4 @@ volumes:
   ros2_build:
   ros2_install:
   ros2_log:
+  whisper_cache:
