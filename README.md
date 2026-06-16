@@ -11,7 +11,7 @@
 ```mermaid
 %%{ init: { 'flowchart': { 'curve': 'linear' } } }%%
 flowchart TD
-    lidar[LiDAR]
+    lidar[LiDAR /scan]
     manual_target[/手動目標地点・手動操縦入力/]
 
     subgraph "人間検知パッケージ"
@@ -30,14 +30,15 @@ flowchart TD
 
     esp32[esp32_bridge]
 
-    lidar         --/lidar/points--> humanDetector
-    humanDetector --/humans/detected--> humanTracker
-    humanTracker  --/humans/tracked--> humanSelector
-    humanSelector --/humans/target_point--> targetPointSelector
-    manual_target --/target_point/manual--> targetPointSelector
+    lidar             --/scan--> humanDetector
+    humanDetector     --/humans/detected--> humanTracker
+    humanDetector     --/safety/obstacle_near--> humanSelector
+    humanTracker      --/humans/tracked--> humanSelector
+    humanSelector     --/humans/target_point--> targetPointSelector
+    manual_target     --/target_point/manual--> targetPointSelector
     targetPointSelector --/target_point/selected--> moveCtrl
-    moveCtrl      --/cmd_vel--> directCtrlSelector
-    manual_target --/cmd_vel/manual--> directCtrlSelector
+    moveCtrl          --/cmd_vel--> directCtrlSelector
+    manual_target     --/cmd_vel/manual--> directCtrlSelector
     directCtrlSelector --/crawler/cmd--> esp32
 ```
 
@@ -54,7 +55,9 @@ flowchart TD
 
 | トピック | 型 | 説明 |
 | --- | --- | --- |
-| `/lidar/points` | `sensor_msgs/PointCloud2` | LiDAR生点群 |
+| `/scan` | `sensor_msgs/LaserScan` | LiDAR生スキャンデータ |
+| `/colored_points` | `sensor_msgs/PointCloud2` | 検出結果可視化用色付き点群（RViz） |
+| `/safety/obstacle_near` | `std_msgs/Bool` | 安全停止フラグ（0.8m以内に障害物） |
 | `/humans/detected` | `tm_system_msgs/HumanClusterList` | 検出人物クラスタリスト |
 | `/humans/tracked` | `tm_system_msgs/TrackedHumanList` | ID付き追跡人物リスト |
 | `/humans/target_point` | `geometry_msgs/PoseStamped` | 追尾目標点 |
@@ -83,7 +86,7 @@ ros2 launch tm_system_bringup tm_system_all.launch.py
 ### 全ノード＋ダミーデータ一斉送信（全体動作テスト用）
 
 ```bash
-ros2 launch tm_system_bringup test_dummy_topics.launch.py
+ros2 launch tm_system_bringup dummy_topics.launch.py
 ```
 
 ### パッケージ個別起動
@@ -116,9 +119,9 @@ colcon test-result --verbose
 
 | ノード | 購読トピック | 発行トピック |
 | --- | --- | --- |
-| `human_detector` | `/lidar/points` | `/humans/detected` |
+| `human_detector` | `/scan` | `/humans/detected`, `/colored_points`, `/safety/obstacle_near` |
 | `human_tracker` | `/humans/detected` | `/humans/tracked` |
-| `human_selector` | `/humans/tracked` | `/humans/target_point` |
+| `human_selector` | `/humans/tracked`, `/safety/obstacle_near` | `/humans/target_point` |
 | `target_point_selector` | `/humans/target_point`, `/target_point/manual` | `/target_point/selected` |
 | `move_controller` | `/target_point/selected` | `/cmd_vel` |
 | `direct_ctrl_selector` | `/cmd_vel`, `/cmd_vel/manual` | `/crawler/cmd` |

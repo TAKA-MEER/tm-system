@@ -1,6 +1,7 @@
 import pytest
 import rclpy
-from sensor_msgs.msg import PointCloud2
+from sensor_msgs.msg import LaserScan
+from std_msgs.msg import Bool
 from tm_system_msgs.msg import HumanClusterList
 
 
@@ -19,6 +20,8 @@ class TestHumanDetectorDummy:
         assert node is not None
         assert node.sub is not None
         assert node.pub is not None
+        assert node.pc_pub is not None
+        assert node.safety_pub is not None
         node.destroy_node()
 
     def test_pub_sub_types(self):
@@ -26,8 +29,11 @@ class TestHumanDetectorDummy:
         node = HumanDetectorNode()
         sub_info = node.sub
         pub_info = node.pub
-        assert sub_info.topic_name == '/lidar/points'
-        assert sub_info.msg_type == PointCloud2
+        safety_pub_info = node.safety_pub
+        assert sub_info.topic_name == '/scan'
+        assert sub_info.msg_type == LaserScan
         assert pub_info.topic_name == '/humans/detected'
         assert pub_info.msg_type == HumanClusterList
+        assert safety_pub_info.topic_name == '/safety/obstacle_near'
+        assert safety_pub_info.msg_type == Bool
         node.destroy_node()

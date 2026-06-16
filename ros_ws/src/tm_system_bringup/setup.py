@@ -12,7 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch',
          ['launch/tm_system_all.launch.py',
-          'launch/test_dummy_topics.launch.py']),
+          'launch/dummy_topics.launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

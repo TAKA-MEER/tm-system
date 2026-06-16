@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     ros-humble-gazebo-ros-pkgs \
     && rm -rf /var/lib/apt/lists/*
 
+# scikit-learn のインストール
+RUN pip3 install scikit-learn
+
 # Node.js 18 のインストール（mermaid-cli 用）
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
