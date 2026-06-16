@@ -12,8 +12,9 @@ import sensor_msgs_py.point_cloud2 as pc2
 
 from tm_system_msgs.msg import HumanClusterList
 
-# 安全停止：この距離（m）以内に何かあれば走行系を止める
-SAFETY_STOP_DISTANCE = 0.8
+# 安全ゾーン設定：前方0.8m × 横0.8m の矩形エリア
+SAFETY_DIST_FRONT = 0.8    # 前方の安全距離 (m)
+SAFETY_DIST_LR = 0.4       # 左右方向の安全距離 (m) (±0.4m)
 
 
 class HumanDetectorNode(Node):
@@ -44,7 +45,7 @@ class HumanDetectorNode(Node):
             Bool, '/safety/obstacle_near', 10)
 
         self.get_logger().info(
-            f'HumanDetectorNode 起動完了（安全停止距離: {SAFETY_STOP_DISTANCE}m）')
+            f'HumanDetectorNode 起動完了（安全ゾーン: 前方0.1〜{SAFETY_DIST_FRONT}m × 横±{SAFETY_DIST_LR}m）')
 
     def callback(self, msg: LaserScan):
         # ──────────────────────────────────────
@@ -69,8 +70,11 @@ class HumanDetectorNode(Node):
         # ──────────────────────────────────────
         # 安全停止チェック：0.8m 以内に何かあれば即 True を発行
         # ──────────────────────────────────────
-        distances = np.linalg.norm(points_np, axis=1)
-        obstacle_near = bool(np.any(distances < SAFETY_STOP_DISTANCE))
+        # 安全ゾーン：前方（xが0.1m〜0.8m）かつ 横方向（yが±0.4m）
+        # ※0.1m未満は自分自身の機体が映り込んでいる可能性があるので無視する
+        in_front = (points_np[:, 0] > 0.1) & (points_np[:, 0] < SAFETY_DIST_FRONT)
+        in_lr = np.abs(points_np[:, 1]) < SAFETY_DIST_LR
+        obstacle_near = bool(np.any(in_front & in_lr))
         safety_msg = Bool()
         safety_msg.data = obstacle_near
         self.safety_pub.publish(safety_msg)
@@ -78,9 +82,11 @@ class HumanDetectorNode(Node):
             # 1秒に1回だけ警告ログを出す（スパム防止）
             now_sec = self.get_clock().now().nanoseconds / 1e9
             if now_sec - self._last_safety_warn_time >= 1.0:
+                in_zone = points_np[in_front & in_lr]
+                min_dist = float(np.min(np.linalg.norm(in_zone, axis=1)))
                 self.get_logger().warn(
-                    f'⚠️  安全停止: {SAFETY_STOP_DISTANCE}m以内に障害物検知 '
-                    f'（最近傍: {float(np.min(distances)):.2f}m）'
+                    f'⚠️  安全停止: 安全ゾーン内に障害物検知 '
+                    f'（最近傍: {min_dist:.2f}m）'
                 )
                 self._last_safety_warn_time = now_sec
 
