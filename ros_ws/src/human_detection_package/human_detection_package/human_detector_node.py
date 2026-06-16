@@ -7,10 +7,13 @@ from sklearn.cluster import DBSCAN
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan, PointCloud2, PointField
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Bool
 import sensor_msgs_py.point_cloud2 as pc2
 
 from tm_system_msgs.msg import HumanClusterList
+
+# 安全停止：この距離（m）以内に何かあれば走行系を止める
+SAFETY_STOP_DISTANCE = 0.8
 
 
 class HumanDetectorNode(Node):
@@ -26,6 +29,9 @@ class HumanDetectorNode(Node):
         # DBSCANパラメータ: eps=近傍半径(m), min_samples=最小点数
         self.dbscan = DBSCAN(eps=0.15, min_samples=8)
 
+        # 安全警告ログのスロットル用（最後に警告した時刻）
+        self._last_safety_warn_time = 0.0
+
         self.sub = self.create_subscription(
             LaserScan, '/scan', self.callback, 10)
         self.pub = self.create_publisher(
@@ -33,8 +39,12 @@ class HumanDetectorNode(Node):
         # RViz 可視化用（色付き点群）
         self.pc_pub = self.create_publisher(
             PointCloud2, '/colored_points', 10)
+        # 安全停止トピック（0.8m以内に障害物があれば True）
+        self.safety_pub = self.create_publisher(
+            Bool, '/safety/obstacle_near', 10)
 
-        self.get_logger().info('HumanDetectorNode 起動完了（/scan → DBSCAN 足検出）')
+        self.get_logger().info(
+            f'HumanDetectorNode 起動完了（安全停止距離: {SAFETY_STOP_DISTANCE}m）')
 
     def callback(self, msg: LaserScan):
         # ──────────────────────────────────────
@@ -55,6 +65,24 @@ class HumanDetectorNode(Node):
             return
 
         points_np = np.array(points)
+
+        # ──────────────────────────────────────
+        # 安全停止チェック：0.8m 以内に何かあれば即 True を発行
+        # ──────────────────────────────────────
+        distances = np.linalg.norm(points_np, axis=1)
+        obstacle_near = bool(np.any(distances < SAFETY_STOP_DISTANCE))
+        safety_msg = Bool()
+        safety_msg.data = obstacle_near
+        self.safety_pub.publish(safety_msg)
+        if obstacle_near:
+            # 1秒に1回だけ警告ログを出す（スパム防止）
+            now_sec = self.get_clock().now().nanoseconds / 1e9
+            if now_sec - self._last_safety_warn_time >= 1.0:
+                self.get_logger().warn(
+                    f'⚠️  安全停止: {SAFETY_STOP_DISTANCE}m以内に障害物検知 '
+                    f'（最近傍: {float(np.min(distances)):.2f}m）'
+                )
+                self._last_safety_warn_time = now_sec
 
         # ──────────────────────────────────────
         # 2. DBSCAN クラスタリング
