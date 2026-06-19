@@ -13,7 +13,7 @@ setup(
         ('share/' + package_name + '/launch',
          ['launch/human_detection_package.launch.py']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'scikit-learn'],
     zip_safe=True,
     maintainer='developer',
     maintainer_email='dev@example.com',
